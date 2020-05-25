@@ -9,6 +9,6 @@ mvn clean package
 ```
 
 ## Run
-```shell script
+```bash
 java -cp ./target/zookeeper-jar-with-dependencies.jar com.drkiettran.zookeeper.CreateGroup localhost zoo
 ```

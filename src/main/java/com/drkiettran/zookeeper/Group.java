@@ -41,7 +41,9 @@ public class Group implements Watcher {
 	}
 
 	public List<String> list(String groupName) throws KeeperException, InterruptedException {
-		String path = "/" + groupName;
+		String path = groupName.charAt(0) == '/' ? "" : "/";
+		path += groupName;
+
 		try {
 			return zk.getChildren(path, false);
 		} catch (KeeperException.NoNodeException e) {
@@ -51,7 +53,9 @@ public class Group implements Watcher {
 	}
 
 	public void delete(String groupName) throws KeeperException, InterruptedException {
-		String path = "/" + groupName;
+		String path = groupName.charAt(0) == '/' ? "" : "/";
+		path += groupName;
+
 		try {
 			List<String> children = zk.getChildren(path, false);
 			for (String child : children) {
@@ -70,7 +74,9 @@ public class Group implements Watcher {
 	}
 
 	public boolean exists(String groupName) throws KeeperException, InterruptedException {
-		String path = "/" + groupName;
+		String path = groupName.charAt(0) == '/' ? "" : "/";
+		path += groupName;
+
 		return zk.exists(path, false) != null;
 	}
 

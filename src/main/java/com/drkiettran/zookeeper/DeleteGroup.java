@@ -6,7 +6,9 @@ import org.apache.zookeeper.KeeperException;
 
 public class DeleteGroup extends ConnectionWatcher {
 	public void delete(String groupName) throws KeeperException, InterruptedException {
-		String path = "/" + groupName;
+		String path = groupName.charAt(0) == '/' ? "" : "/";
+		path += groupName;
+
 		try {
 			List<String> children = zk.getChildren(path, false);
 			for (String child : children) {
