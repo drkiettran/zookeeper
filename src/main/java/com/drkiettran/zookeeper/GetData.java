@@ -3,15 +3,14 @@ package com.drkiettran.zookeeper;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.KeeperState;
-import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.ZooKeeper;
+import org.apache.zookeeper.data.Stat;
 
-public class CreateGroup implements Watcher {
+public class GetData implements Watcher {
 	private static final int SESSION_TIMEOUT = 5000;
 	private ZooKeeper zk;
 	private CountDownLatch connectedSignal = new CountDownLatch(1);
@@ -28,15 +27,21 @@ public class CreateGroup implements Watcher {
 		}
 	}
 
-	public void create(String groupName) throws KeeperException, InterruptedException {
+	public void set(String groupName) throws KeeperException, InterruptedException {
 		String path = groupName.charAt(0) == '/' ? "" : "/";
 		path += groupName;
-		String createdPath;
+
 		try {
-			createdPath = zk.create(path, null/* data */, Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-			System.out.println("Created " + createdPath);
+			Stat stat = new Stat();
+			String data = new String(zk.getData(path, false, stat));
+			if (data != null) {
+				System.out.printf("Got `%s` from %s\n", data, path);
+				System.out.printf("version %d\n", stat.getVersion());
+			}
 		} catch (KeeperException.NodeExistsException e) {
-			System.out.printf("ERROR: Group %s exists\n", groupName);
+			System.out.printf("ERROR: Group %s does not exist\n", groupName);
+		} catch (KeeperException.BadVersionException e) {
+			System.out.printf("ERROR: bad data version!\n", groupName);
 		}
 	}
 
@@ -45,9 +50,9 @@ public class CreateGroup implements Watcher {
 	}
 
 	public static void main(String[] args) throws Exception {
-		CreateGroup createGroup = new CreateGroup();
-		createGroup.connect(args[0]);
-		createGroup.create(args[1]);
-		createGroup.close();
+		GetData gd = new GetData();
+		gd.connect(args[0]);
+		gd.set(args[1]);
+		gd.close();
 	}
 }

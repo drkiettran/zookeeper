@@ -15,9 +15,9 @@ public class DeleteGroup extends ConnectionWatcher {
 				zk.delete(path + "/" + child, -1);
 			}
 			zk.delete(path, -1);
+			System.out.printf("Group %s deleted!", groupName);
 		} catch (KeeperException.NoNodeException e) {
 			System.out.printf("Group %s does not exist\n", groupName);
-			System.exit(1);
 		}
 	}
 
